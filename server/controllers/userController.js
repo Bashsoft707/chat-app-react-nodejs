@@ -83,3 +83,46 @@ module.exports.logOut = (req, res, next) => {
     next(ex);
   }
 };
+
+module.exports.resetPassword = async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    if (!user)
+      return res.json({ msg: "Incorrect Username or Password", status: false });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid)
+      return res.json({ msg: "Incorrect Username or Password", status: false });
+    delete user.password;
+    return res.json({ status: true, user });
+  } catch (ex) {
+    next(ex);
+  }
+};
+
+module.exports.resetPassword = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(400).json({ msg: "Incorrect Username or Password", status: false });
+    }
+    
+    // Generate a new hashed password
+    const newPassword = await bcrypt.hash(password, 10);
+    
+    // Update the user's password with the new hashed password
+    user.password = newPassword;
+    
+    // Save the updated user in the database
+    await user.save();
+    
+    // Remove the password field from the user object before sending the response
+    user.password = undefined;
+    
+    return res.json({ status: true, user });
+  } catch (ex) {
+    next(ex);
+  }
+};

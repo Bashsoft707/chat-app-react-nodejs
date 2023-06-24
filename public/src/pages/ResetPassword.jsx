@@ -5,11 +5,11 @@ import { useNavigate, Link } from "react-router-dom";
 import Logo from "../assets/logo.svg";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { loginRoute } from "../utils/APIRoutes";
+import { resetPasswordRoute } from "../utils/APIRoutes";
 
-export default function Login() {
+export default function ResetPassword() {
   const navigate = useNavigate();
-  const [values, setValues] = useState({ username: "", password: "" });
+  const [values, setValues] = useState({ email: "", password: "" });
   const toastOptions = {
     position: "bottom-right",
     autoClose: 8000,
@@ -28,8 +28,8 @@ export default function Login() {
   };
 
   const validateForm = () => {
-    const { username, password } = values;
-    if (username === "") {
+    const { email, password } = values;
+    if (email === "") {
       toast.error("Email and Password is required.", toastOptions);
       return false;
     } else if (password === "") {
@@ -42,21 +42,16 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (validateForm()) {
-      const { username, password } = values;
-      const { data } = await axios.post(loginRoute, {
-        username,
+      const { email, password } = values;
+      const { data } = await axios.post(resetPasswordRoute, {
+        email,
         password,
       });
       if (data.status === false) {
         toast.error(data.msg, toastOptions);
       }
       if (data.status === true) {
-        localStorage.setItem(
-          process.env.REACT_APP_LOCALHOST_KEY,
-          JSON.stringify(data.user)
-        );
-
-        navigate("/");
+        navigate("/login");
       }
     }
   };
@@ -70,9 +65,9 @@ export default function Login() {
             <h1>snappy</h1>
           </div>
           <input
-            type="text"
-            placeholder="Username"
-            name="username"
+            type="email"
+            placeholder="Email"
+            name="email"
             onChange={(e) => handleChange(e)}
             min="3"
           />
@@ -82,12 +77,9 @@ export default function Login() {
             name="password"
             onChange={(e) => handleChange(e)}
           />
-          <button type="submit">Log In</button>
+          <button type="submit">Reset password</button>
           <span>
-            Forget Password? <Link to="/reset-password">Click here to reset password.</Link>
-          </span>
-          <span>
-            Don't have an account ? <Link to="/register">Create One.</Link>
+           Go back to login page <Link to="/login">Login</Link>
           </span>
         </form>
       </FormContainer>
